@@ -1,4 +1,4 @@
-﻿@page "/game"
+﻿@page "/"
 @inject IJSRuntime JSRuntime
 @rendermode InteractiveServer
 @using TicTacToe;
@@ -27,45 +27,46 @@
 
 <script>
     function showAlert(message) {
-        alert(message);
+    alert(message);
     }
 </script>
 @code {
     public char[,] board = new char[,] {
-        {'O', ' ', ' ',},
+        {'O', ' ', 'X',},
         {' ', 'X', ' ',},
         {' ', ' ', 'O',}
     };
-
+    bool winFlag = false;
+    
     int currentPlayer = 0;  // Keep track of the current player (0 or 1)
     void ResetGame()
     {
-
         Console.WriteLine("Button clicked !");
         board = new char[3,3] {
             { ' ', ' ', ' ',},
             { ' ', ' ', ' ',},
             { ' ', ' ', ' ',}
-    };
+        };
+        winFlag = false;
 
     }
     void MakeMove(int row, int col)
     {
         char[] ox = new[] { 'O', 'X' };
-
-        // Only allow move if the cell is empty
-        if (board[row, col] == ' ')
+        if (winFlag == true)
+        {
+            string message = $"Player {currentPlayer + 1} ({ox[currentPlayer]}) wins the game! Congratulations! :) :) :)";
+            JSRuntime.InvokeVoidAsync("showAlert", message);
+            ResetGame();
+        }
+        if (board[row, col] == ' ' && winFlag == false)
         {         
-            Console.WriteLine($"row = {row} col = {col}");
             board[row, col] = ox[currentPlayer];
-            Console.WriteLine("Move made by player " + (currentPlayer + 1));
             if(isWin())
             {
-                Console.WriteLine("Congratulations :) :) :)");
-                Console.WriteLine($"Player {currentPlayer + 1} Win the Game !");
-                string message = $"Player {currentPlayer + 1} wins the game! Congratulations! :) :) :)";
-                JSRuntime.InvokeVoidAsync("showAlert", message);
-                ResetGame();
+                winFlag = true;
+                //to avoid player change 
+                currentPlayer = 1 - currentPlayer;
             }
             // Toggle the player after each move
             currentPlayer = 1 - currentPlayer;
